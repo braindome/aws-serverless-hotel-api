@@ -1,0 +1,34 @@
+service: aws-serverless-hotel-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: ${env:AWS_PROFILE}
+  region: eu-north-1
+  iam:
+    role: ${env:AWS_IAM_ROLE}
+
+functions:
+  function1:
+    handler: index.handler
+
+plugins:
+  - serverless-webpack
+
+package: 
+  individually: true
+
+resources:
+  Resources:
+    teamDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: hotel-db # Database table name
+        AttributeDefinitions:
+          - AttributeName: id # database item id
+            AttributeType: S # String
+        KeySchema:
+          - AttributeName: id # database key id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
