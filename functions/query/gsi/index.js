@@ -11,3 +11,14 @@ export const gsi_date_occupied = (checkIn,checkOut) =>{
     };*/
 }
 
+export const gsi_room_by_size = (roomSize) =>{
+    return{
+        TableName: process.env.DYNAMO_DB_TABLE,
+        IndexName: process.env.GSI_ROOM_BY_ROOM_SIZE,
+        KeyConditionExpression:"#pk = :pk",
+        ExpressionAttributeNames: {"#pk":"roomSize"},
+        ExpressionAttributeValues:{":pk": roomSize},
+        ScanIndexForward:false,
+    };
+}
+
