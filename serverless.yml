@@ -1,5 +1,6 @@
 service: aws-serverless-hotel-api
 frameworkVersion: '3'
+useDotenv: true
 
 provider:
   name: aws
@@ -8,16 +9,32 @@ provider:
   region: eu-north-1
   iam:
     role: ${env:AWS_IAM_ROLE}
+  environment:
+    DYNAMO_DB_TABLE: ${env:DYNAMO_DB_TABLE}
+    
+plugins:
+  - serverless-webpack
+  - serverless-scriptable-plugin
+
+package: 
+  individually: true
+
+
+# UNCOMMENT generate INSIDE generate_hotel_rooms.js TO POPULATE TABLE 
+custom:
+  scriptable:
+    hooks:
+      after:aws:deploy:deploy:createStack:  generate_hotel_rooms.js
 
 functions:
   function1:
     handler: index.handler
-
-plugins:
-  - serverless-webpack
-
-package: 
-  individually: true
+  queryRooms:
+    handler:  functions/get/availableRooms/index.handler
+    events:
+      - httpApi:
+          path: '/rooms'
+          method: GET
 
 resources:
   Resources:
