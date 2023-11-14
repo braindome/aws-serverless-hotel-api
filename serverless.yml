@@ -29,8 +29,12 @@ custom:
       #after:aws:deploy:deploy:createStack:  generate_hotel_rooms.js
 
 functions:
-  function1:
-    handler: index.handler
+  bookRoom:
+    handler: functions/bookRoom/index.handler
+    events:
+      - httpApi:
+          path: '/book'
+          method: POST
   queryRooms:
     handler:  functions/get/availableRooms/index.handler
     events:
