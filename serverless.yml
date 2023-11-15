@@ -47,6 +47,13 @@ functions:
       - httpApi:
           path: '/bookings/current'
           method: GET
+  deleteBooking:
+    handler: functions/delete/index.handler 
+    events:
+      - httpApi:
+          path: '/bookings/current'
+          method: delete
+          
 
 resources:
   Resources:
