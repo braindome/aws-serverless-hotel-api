@@ -6,35 +6,40 @@ function randomIntFromInterval(min, max) {
 }
 
 const randomBooking = () => {
-    const PUT_ACTUAL_ROOM_ID_HERE = "123456789"
-    const ALSO_HERE = "123456789"
     return{
         PutRequest:{
             Item: {
                 id:uuidv4(),
                 numberOfGuests: "3",
-                checkInDate: "2023-11-14",
-                checkOutDate: "2023-11-15",
-                numberOfRooms: "2",
+                checkInDate: "2023-11-16",
+                checkOutDate: "2023-11-23",
+                numberOfRooms: "3",
+                totalAmountToPay: "21000",
                 GSI_PK_1: "BOOKING#CONFIRMED",
-                GSI_SK_1: "2023-11-14",
+                GSI_SK_1: "2023-11-16",
                 rooms: [
                     {
-                        id:PUT_ACTUAL_ROOM_ID_HERE,
+                        id:"c9be8f60-9e5b-4dc5-8cd6-02374a977988",
                         type: "single",
-                        quantity: 2,
+                        quantity: 1,
                         costPerNight: 500
                     },
                     {
-                        id:ALSO_HERE,
+                        id:"87278aea-d0ab-4a70-8e23-92dc6a346b8a",
                         type: "double",
-                        quantity: 1,
+                        quantity: 2,
                         costPerNight: 1000
+                    },
+                    {
+                        id:"07e75b76-820a-441d-b054-5a6430800df8",
+                        type: "suite",
+                        quantity: 3,
+                        costPerNight: 1500
                     }
                 ],
                 referencePerson: {
-                    name: "John Doe",
-                    email: "john.doe@example.com"
+                    name: "Fredrik Sundström",
+                    email: "fredrik@heatia.se"
                 }
            }
         }
@@ -68,5 +73,5 @@ const generate = async () =>{
 }
 
 
-generate();
+//generate();
 

@@ -13,8 +13,7 @@ provider:
     DYNAMO_DB_TABLE: ${env:DYNAMO_DB_TABLE}
     GSI_ROOM_BY_ROOM_SIZE:  ${env:GSI_ROOM_BY_ROOM_SIZE}
     GSI_GENERIC_PK_SK: ${env:GSI_GENERIC_PK_SK}
-    #GSI_GENERIC_PK_SK="GSI_GENERIC_PK_SK"
-    
+      
 plugins:
   - serverless-webpack
   - serverless-scriptable-plugin
@@ -35,11 +34,17 @@ functions:
       - httpApi:
           path: '/book'
           method: POST
+  bookRoomAndLockDates:
+    handler: functions/bookRoomLockDates/index.handler
+    events:
+      - httpApi:
+          path: '/bookroom/lockdates'
+          method: POST
   queryRooms:
     handler:  functions/get/availableRooms/index.handler
     events:
       - httpApi:
-          path: '/rooms'
+          path: '/rooms/available'
           method: GET
   currentBookings:
     handler:  functions/get/currentBookings/index.handler
@@ -57,8 +62,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: id # database item id
             AttributeType: S # String
-          - AttributeName: roomSize 
-            AttributeType: N
+          #- AttributeName: roomSize 
+          #  AttributeType: N
           - AttributeName: GSI_PK_1 
             AttributeType: S
           - AttributeName: GSI_SK_1 
@@ -67,12 +72,12 @@ resources:
           - AttributeName: id # database key id
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: "GSI_HOTEL_ONE"
-            KeySchema:
-            - AttributeName: roomSize
-              KeyType: "HASH"
-            Projection:
-              ProjectionType: ALL
+          #- IndexName: "GSI_HOTEL_ONE"
+          #  KeySchema:
+          #  - AttributeName: roomSize
+          #    KeyType: "HASH"
+          #  Projection:
+          #    ProjectionType: ALL
           - IndexName: "GSI_GENERIC_PK_SK"
             KeySchema:
             - AttributeName: GSI_PK_1

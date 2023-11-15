@@ -1,10 +1,11 @@
 import { SERVER } from "../../../aws_module";
-import { gsi_active_bookings,gsi_active_bookings_with_date_range,FILTER_QUERY_DATES } from "../../query/gsi";
+import { gsi_active_bookings,gsi_active_bookings_with_date_range } from "../../query/gsi";
+import {verifyDateParameters} from "../../query/helper/index"
 
 exports.handler = async (event, context) => {
     try{
         const param = event.queryStringParameters;
-        const req = verifyParameters(param);
+        const req = verifyDateParameters(param);
         if(!req.gotParams){
             const {Items} = await SERVER.documentClient.query(gsi_active_bookings()).promise();
             return SERVER.sendResponse(200,{success:true,rooms:Items});
@@ -20,20 +21,3 @@ exports.handler = async (event, context) => {
         return SERVER.sendResponse(500,{success:false,msg:err});
     }
 }
-
-
-const verifyParameters = (param) =>{
-    if(param === null || param === undefined || isObjectEmpty(param)){ return {gotParams:false}; }
-    if("checkInDate" in param && "checkOutDate" in param){return {gotParams:true,verified:true,filter:FILTER_QUERY_DATES.CHECK_IN_CHECK_OUT};}
-    if("checkInDate" in param){return {gotParams:true,verified:true,filter:FILTER_QUERY_DATES.CHECK_IN};}
-    if("checkOutDate" in param){return {gotParams:true,verified:true,filter:FILTER_QUERY_DATES.CHECK_OUT};}
-    return {gotParams:true,verified:false};
-}
-
-const isObjectEmpty = (obj) => {
-    return (
-      obj &&
-      Object.keys(obj).length === 0 &&
-      obj.constructor === Object
-    );
-  };

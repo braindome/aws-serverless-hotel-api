@@ -1,16 +1,38 @@
+import { getDateRangeBetween } from "../helper";
+
 export const FILTER_QUERY_DATES = Object.freeze({
     CHECK_IN_CHECK_OUT:"CHECK_IN_CHECK_OUT",
     CHECK_IN:"CHECK_IN",
     CHECK_OUT:"CHECK_OUT",
 });
 
-export const gsi_room_by_size = (roomSize) =>{
+export const gsi_available_room_by_size = (checkInDate,checkOutDate,roomSize) =>{
+    const q = filterExpressionAndExpressionAttribute(checkInDate,checkOutDate);
+    q.expressionAttribute[":pk"] = "ROOM";
+    q.expressionAttribute[":sk"] = `${roomSize}`;
     return{
         TableName: process.env.DYNAMO_DB_TABLE,
-        IndexName: process.env.GSI_ROOM_BY_ROOM_SIZE,
+        IndexName: process.env.GSI_GENERIC_PK_SK,
+        KeyConditionExpression:"#pk = :pk AND #sk = :sk",
+        ProjectionExpression: "id, roomNumber, roomPrice, roomSize",
+        FilterExpression:q.filterExpression,
+        ExpressionAttributeNames: {"#pk":"GSI_PK_1","#sk":"GSI_SK_1"},
+        ExpressionAttributeValues:q.expressionAttribute,
+        ScanIndexForward:false,
+    };
+}
+
+export const gsi_available_room_without_size = (checkInDate,checkOutDate) =>{
+    const q = filterExpressionAndExpressionAttribute(checkInDate,checkOutDate);
+    q.expressionAttribute[":pk"] = "ROOM";
+    return{
+        TableName: process.env.DYNAMO_DB_TABLE,
+        IndexName: process.env.GSI_GENERIC_PK_SK,
         KeyConditionExpression:"#pk = :pk",
-        ExpressionAttributeNames: {"#pk":"roomSize"},
-        ExpressionAttributeValues:{":pk": roomSize},
+        ProjectionExpression: "id, roomNumber, roomPrice, roomSize",
+        FilterExpression:q.filterExpression,
+        ExpressionAttributeNames: {"#pk":"GSI_PK_1"},
+        ExpressionAttributeValues:q.expressionAttribute,
         ScanIndexForward:false,
     };
 }
@@ -78,7 +100,18 @@ const allConfirmedBookingsWithCheckInDate = (checkInDate) =>{
      };
  }
 
+const filterExpressionAndExpressionAttribute  = (checkInDate,checkOutDate) =>{
+    const dateRangeList = getDateRangeBetween(checkInDate,checkOutDate);
+    var filterExpression = ""
+    var expressionAttribute = {}
+    dateRangeList.forEach((date,i) =>{
+        if(i === 0){ filterExpression += `not contains (bookedDates, :d${i})` }
+        else{ filterExpression += `AND not contains (bookedDates, :d${i})` }
+        expressionAttribute[`:d${i}`] = date;
+    })
 
+    return {filterExpression:filterExpression,expressionAttribute:expressionAttribute}
+}
 
 const addDays = function(str, days) {
     var myDate = new Date(str);
