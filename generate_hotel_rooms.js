@@ -9,13 +9,17 @@ const randomRoom = (index) => {
     const roomNumber = `${index}`
     const roomSize = randomIntFromInterval(1,3);
     const roomPrice = 500*roomSize;
+    const id = uuidv4();
     return{
         PutRequest:{
             Item: {
-                id:uuidv4(),
+                id:id,
                 roomNumber:roomNumber,
                 roomSize:roomSize,
                 roomPrice:roomPrice,
+                GSI_PK_1:  "ROOM",
+                GSI_SK_1: `${roomSize}`,
+                bookedDates:[],
             }
         }
     };
@@ -48,5 +52,4 @@ const generate = async () =>{
 }
 
 // UNCOMMENT TO POPULATE
-//generate();
-
+// generate();
