@@ -5,10 +5,11 @@ const errDateMsg = "Invalid date range. Please provide valid checkInDate and che
 const erPeopleToHoldMsg = (tot,max) =>{ `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
 
 
-
+/*
 const testIdSingleRoom = "c9be8f60-9e5b-4dc5-8cd6-02374a977988";
 const testIdDoubleRoom = "87278aea-d0ab-4a70-8e23-92dc6a346b8a";
 const testIdSuiteRoom = "07e75b76-820a-441d-b054-5a6430800df8";
+*/
 
 
 exports.handler = async (event, context) => {
