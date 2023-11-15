@@ -12,6 +12,8 @@ provider:
   environment:
     DYNAMO_DB_TABLE: ${env:DYNAMO_DB_TABLE}
     GSI_ROOM_BY_ROOM_SIZE:  ${env:GSI_ROOM_BY_ROOM_SIZE}
+    GSI_GENERIC_PK_SK: ${env:GSI_GENERIC_PK_SK}
+    #GSI_GENERIC_PK_SK="GSI_GENERIC_PK_SK"
     
 plugins:
   - serverless-webpack
@@ -20,12 +22,10 @@ plugins:
 package: 
   individually: true
 
-
-# UNCOMMENT generate INSIDE generate_hotel_rooms.js TO POPULATE TABLE 
 custom:
   scriptable:
     hooks:
-      after:aws:deploy:deploy:createStack:  generate_booking.js
+      #after:aws:deploy:deploy:createStack:  generate_booking.js
       #after:aws:deploy:deploy:createStack:  generate_hotel_rooms.js
 
 functions:
@@ -41,6 +41,12 @@ functions:
       - httpApi:
           path: '/rooms'
           method: GET
+  currentBookings:
+    handler:  functions/get/currentBookings/index.handler
+    events:
+      - httpApi:
+          path: '/bookings/current'
+          method: GET
 
 resources:
   Resources:
@@ -53,6 +59,10 @@ resources:
             AttributeType: S # String
           - AttributeName: roomSize 
             AttributeType: N
+          - AttributeName: GSI_PK_1 
+            AttributeType: S
+          - AttributeName: GSI_SK_1 
+            AttributeType: S
         KeySchema:
           - AttributeName: id # database key id
             KeyType: HASH
@@ -63,4 +73,12 @@ resources:
               KeyType: "HASH"
             Projection:
               ProjectionType: ALL
+          - IndexName: "GSI_GENERIC_PK_SK"
+            KeySchema:
+            - AttributeName: GSI_PK_1
+              KeyType: HASH
+            - AttributeName: GSI_SK_1
+              KeyType: RANGE
+            Projection:
+                ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST

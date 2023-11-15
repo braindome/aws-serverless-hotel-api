@@ -13,8 +13,11 @@ const randomBooking = () => {
             Item: {
                 id:uuidv4(),
                 numberOfGuests: "3",
-                checkInDate: "2023-11-15",
-                checkOutDate: "2023-11-20",
+                checkInDate: "2023-11-14",
+                checkOutDate: "2023-11-15",
+                numberOfRooms: "2",
+                GSI_PK_1: "BOOKING#CONFIRMED",
+                GSI_SK_1: "2023-11-14",
                 rooms: [
                     {
                         id:PUT_ACTUAL_ROOM_ID_HERE,
@@ -64,5 +67,6 @@ const generate = async () =>{
          
 }
 
-// UNCOMMENT TO POPULATE
-//generate();
+
+generate();
+

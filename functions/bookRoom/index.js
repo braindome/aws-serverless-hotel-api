@@ -16,7 +16,10 @@ exports.handler = async (event, context) => {
   bookingDetails.checkOutDate = bookingDetails.checkOutDate;
   bookingDetails.rooms = bookingDetails.rooms;
   bookingDetails.referencePerson = bookingDetails.referencePerson;
-
+  
+  bookingDetails.numberOfRooms = `${bookingDetails.rooms.length}`;
+  bookingDetails.GSI_PK_1 = "BOOKING#CONFIRMED"
+  bookingDetails.GSI_SK_1 = bookingDetails.checkInDate
 
   try {
     await db
