@@ -29,6 +29,35 @@ function validateDate(checkIn, checkOut) {
   }
 }
 
+function calculateTotalCost(rooms, checkOut, checkIn) {
+  let totalCost = 0;
+
+  rooms.forEach(room => {
+    let costPerNight;
+
+    switch (room.type.toLowerCase()) {
+      case "single":
+        costPerNight = 500;
+        break;
+      case "double":
+        costPerNight = 1000;
+        break;
+      case "suite":
+        costPerNight = 1500;
+        break;
+      default:
+        costPerNight = 0;
+    }
+
+    totalCost += costPerNight * Math.ceil(
+      (new Date(checkOut) - new Date(checkIn)) /
+        (1000 * 60 * 60 * 24)
+    );
+  });
+
+  return totalCost;
+}
+
 exports.handler = async (event, context) => {
   const bookingDetails = JSON.parse(event.body);
 
@@ -39,13 +68,15 @@ exports.handler = async (event, context) => {
   bookingDetails.rooms = bookingDetails.rooms;
   bookingDetails.referencePerson = bookingDetails.referencePerson;
 
-
   validateDate(bookingDetails.checkInDate, bookingDetails.checkOutDate);
 
   bookingDetails.numberOfRooms = `${bookingDetails.rooms.length}`;
   bookingDetails.GSI_PK_1 = "BOOKING#CONFIRMED";
   bookingDetails.GSI_SK_1 = bookingDetails.checkInDate;
 
+
+  const totalCost = calculateTotalCost(bookingDetails.rooms, bookingDetails.checkOutDate, bookingDetails.checkInDate);
+  bookingDetails.totalCost = totalCost;
 
   try {
     await db
