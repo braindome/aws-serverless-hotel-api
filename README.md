@@ -10,63 +10,71 @@ authorLink: 'https://github.com/serverless'
 authorName: 'Serverless, inc.'
 authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 -->
+# HOW TO USE
+- Download and install Insomnia
+- Deploy to your AWS: `sls deploy`
+- Follow the instructions for each endpoint
 
-
-# Serverless Framework AWS NodeJS Example
-
-This template demonstrates how to deploy a NodeJS function running on AWS Lambda using the traditional Serverless Framework. The deployed function does not include any event definitions as well as any kind of persistence (database). For more advanced configurations check out the [examples repo](https://github.com/serverless/examples/) which includes integrations with SQS, DynamoDB or examples of functions that are triggered in `cron`-like manner. For details about configuration of specific `events`, please refer to our [documentation](https://www.serverless.com/framework/docs/providers/aws/events/).
-
-## Usage
-
-### Deployment
-
-In order to deploy the example, you need to run the following command:
-
-```
-$ serverless deploy
-```
-
-After running deploy, you should see output similar to:
-
-```bash
-Deploying aws-node-project to stage dev (us-east-1)
-
-✔ Service deployed to stack aws-node-project-dev (112s)
-
-functions:
-  hello: aws-node-project-dev-hello (1.5 kB)
-```
-
-### Invocation
-
-After successful deployment, you can invoke the deployed function by using the following command:
-
-```bash
-serverless invoke --function hello
-```
-
-Which should result in response similar to the following:
+## POST-request for booking a/more rooms:
+- Endpoint: /book
 
 ```json
 {
-    "statusCode": 200,
-    "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": {}\n}"
+	"numberOfGuests": 3,
+	"checkInDate": "2023-12-14",
+	"checkOutDate": "2023-12-18",
+	"rooms": [
+		{
+			"id": 1,
+			"type": "single",
+			"quantity": 2,
+			"costPerNight": 500
+		},
+		{
+			"id": 14,
+			"type": "double",
+			"quantity": 1,
+			"costPerNight": 1000
+		}
+	],
+	"referencePerson": {
+		"name": "John Doe",
+		"email": "john.doe@example.com"
+	}
+}
+
+```
+
+## UPDATE-request to change a booking:
+- Endpoint: /bookings/{id}
+
+```json
+{
+  "bookingUpdate": {
+    "numberOfGuests": 3,
+    "checkInDate": "2023-11-18",
+    "checkOutDate": "2023-11-22",
+    "rooms": [
+      {
+        "type": "single",
+        "quantity": 1
+      },
+      {
+        "type": "suite",
+        "quantity": 2
+      }
+    ]
+  }
 }
 ```
 
-### Local development
+## DELETE-request to cancel a booking:
+- Endpoint: /bookings/{id}
 
-You can invoke your function locally by using the following command:
-
-```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
+```json
 {
-    "statusCode": 200,
-    "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
+  "bookingCancellation": {
+    "bookingNumber": "B123456789"
+  }
 }
 ```
