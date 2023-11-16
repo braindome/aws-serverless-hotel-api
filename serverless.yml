@@ -38,19 +38,19 @@ functions:
     handler: functions/bookRoomLockDates/index.handler
     events:
       - httpApi:
-          path: '/bookroom/lockdates'
+          path: '/bookings'
           method: POST
   queryRooms:
     handler:  functions/get/availableRooms/index.handler
     events:
       - httpApi:
-          path: '/rooms/available'
+          path: '/rooms'
           method: GET
   currentBookings:
     handler:  functions/get/currentBookings/index.handler
     events:
       - httpApi:
-          path: '/bookings/current'
+          path: '/bookings'
           method: GET
   deleteBooking:
     handler: functions/delete/index.handler 
@@ -58,6 +58,12 @@ functions:
       - httpApi:
           path: '/bookings/{id}'
           method: DELETE
+  updateBooking:
+    handler: functions/update/index.handler 
+    events:
+      - httpApi:
+          path: '/bookings/{id}'
+          method: PATCH
           
 
 resources:

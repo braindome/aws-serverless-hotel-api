@@ -22,3 +22,9 @@ export const getDateRangeBetween = (from,to) =>{
     }
     return dates;
 }
+
+export const addDays = function(str, days) {
+    var myDate = new Date(str);
+    myDate.setDate(myDate.getDate() + parseInt(days));
+    return myDate;
+}

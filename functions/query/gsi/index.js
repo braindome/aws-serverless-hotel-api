@@ -106,16 +106,10 @@ const filterExpressionAndExpressionAttribute  = (dateRangeList) =>{
         if(i === 0){ filterExpression += `not contains (bookedDates, :d${i})` }
         else{ filterExpression += `AND not contains (bookedDates, :d${i})` }
         expressionAttribute[`:d${i}`] = date;
+        if(i >= 7){throw new Error('Number of dates exceed hotel policy!'); }
     })
 
     return {filterExpression:filterExpression,expressionAttribute:expressionAttribute}
 }
-
-const addDays = function(str, days) {
-    var myDate = new Date(str);
-    myDate.setDate(myDate.getDate() + parseInt(days));
-    return myDate;
-}
-
 
 //https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings/current?checkInDate=2023-12-01&checkOutDate=2023-12-29
