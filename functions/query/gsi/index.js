@@ -1,4 +1,3 @@
-import { getDateRangeBetween } from "../helper";
 
 export const FILTER_QUERY_DATES = Object.freeze({
     CHECK_IN_CHECK_OUT:"CHECK_IN_CHECK_OUT",
@@ -6,8 +5,8 @@ export const FILTER_QUERY_DATES = Object.freeze({
     CHECK_OUT:"CHECK_OUT",
 });
 
-export const gsi_available_room_by_size = (checkInDate,checkOutDate,roomSize) =>{
-    const q = filterExpressionAndExpressionAttribute(checkInDate,checkOutDate);
+export const gsi_available_room_by_size = (dateRangeList,roomSize) =>{
+    const q = filterExpressionAndExpressionAttribute(dateRangeList);
     q.expressionAttribute[":pk"] = "ROOM";
     q.expressionAttribute[":sk"] = `${roomSize}`;
     return{
@@ -22,8 +21,8 @@ export const gsi_available_room_by_size = (checkInDate,checkOutDate,roomSize) =>
     };
 }
 
-export const gsi_available_room_without_size = (checkInDate,checkOutDate) =>{
-    const q = filterExpressionAndExpressionAttribute(checkInDate,checkOutDate);
+export const gsi_available_room_without_size = (dateRangeList) =>{
+    const q = filterExpressionAndExpressionAttribute(dateRangeList);
     q.expressionAttribute[":pk"] = "ROOM";
     return{
         TableName: process.env.DYNAMO_DB_TABLE,
@@ -100,8 +99,7 @@ const allConfirmedBookingsWithCheckInDate = (checkInDate) =>{
      };
  }
 
-const filterExpressionAndExpressionAttribute  = (checkInDate,checkOutDate) =>{
-    const dateRangeList = getDateRangeBetween(checkInDate,checkOutDate);
+const filterExpressionAndExpressionAttribute  = (dateRangeList) =>{
     var filterExpression = ""
     var expressionAttribute = {}
     dateRangeList.forEach((date,i) =>{
