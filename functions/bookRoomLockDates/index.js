@@ -59,7 +59,6 @@ exports.handler = async (event, context) => {
     if(transactItems.length > 4){ 
         return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfRooms(transactItems.length) });
     }
-
    
     try{
         await SERVER.documentClient.transactWrite(params).promise();
