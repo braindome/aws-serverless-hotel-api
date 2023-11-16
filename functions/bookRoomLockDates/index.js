@@ -2,9 +2,9 @@ import {SERVER} from "../../aws_module/index";
 import { getDateRangeBetween } from "../query/helper";
 const { v1: uuidv4 } = require("uuid");
 const errDateMsg = "Invalid date range. Please provide valid checkInDate and checkOutDate in ISO format (e.g., 2023-12-23).";
-const errPeopleToHoldMsg = (tot,max) =>{ `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
-const errMaxNumberOfNights = (tot) =>{ `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
-const errMaxNumberOfRooms = (tot) =>{ `Total amount of rooms (${tot}) exceeds hotel limit (3)!`; }
+const errPeopleToHoldMsg = (tot,max) =>{ return `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
+const errMaxNumberOfNights = (tot) =>{ return `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
+const errMaxNumberOfRooms = (tot) =>{ return `Total amount of rooms (${tot}) exceeds hotel limit (3)!`; }
 
 
 /*
@@ -60,12 +60,13 @@ exports.handler = async (event, context) => {
         return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfRooms(transactItems.length) });
     }
 
+   
     try{
         await SERVER.documentClient.transactWrite(params).promise();
         return SERVER.sendResponse(200, { success: true, bookingConfirmation: bookingDetails });
       } catch(err) {
         return SERVER.sendResponse(500, { success: false,errorMessage:err });
-      }
+    }
 };
 
 
