@@ -2,7 +2,8 @@ import {SERVER} from "../../aws_module/index";
 import { getDateRangeBetween } from "../query/helper";
 const { v1: uuidv4 } = require("uuid");
 const errDateMsg = "Invalid date range. Please provide valid checkInDate and checkOutDate in ISO format (e.g., 2023-12-23).";
-const erPeopleToHoldMsg = (tot,max) =>{ `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
+const errPeopleToHoldMsg = (tot,max) =>{ `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
+const errMaxNumberOfNights = (tot) =>{ `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
 
 
 /*
@@ -17,11 +18,11 @@ exports.handler = async (event, context) => {
     if(!validDateRange(bookingDetails.checkInDate,bookingDetails.checkOutDate)){ return sendResponse(400, {success: false,message:errDateMsg });}
 
     bookingDetails.id = uuidv4();
-    bookingDetails.numberOfGuests = bookingDetails.numberOfGuests;
-    bookingDetails.checkInDate = bookingDetails.checkInDate;
-    bookingDetails.checkOutDate = bookingDetails.checkOutDate;
-    bookingDetails.rooms = bookingDetails.rooms;
-    bookingDetails.referencePerson = bookingDetails.referencePerson;
+    //bookingDetails.numberOfGuests = bookingDetails.numberOfGuests;
+    //bookingDetails.checkInDate = bookingDetails.checkInDate;
+    //bookingDetails.checkOutDate = bookingDetails.checkOutDate;
+    //bookingDetails.rooms = bookingDetails.rooms;
+    //bookingDetails.referencePerson = bookingDetails.referencePerson;
     bookingDetails.numberOfRooms = `${bookingDetails.rooms.length}`;
     
     bookingDetails.GSI_PK_1 = "BOOKING#CONFIRMED";
@@ -44,7 +45,11 @@ exports.handler = async (event, context) => {
     let params = { TransactItems:transactItems }
 
     if(totalOfPeopleToHold < parseInt(bookingDetails.numberOfGuests)){ 
-        return SERVER.sendResponse(400, {success: false,message:erPeopleToHoldMsg(totalOfPeopleToHold,bookingDetails.numberOfGuests) });
+        return SERVER.sendResponse(400, {success: false,message:errPeopleToHoldMsg(totalOfPeopleToHold,bookingDetails.numberOfGuests) });
+    }
+
+    if(stringOfDates.length > 7){ 
+        return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfNights(stringOfDates.length) });
     }
 
     try{
