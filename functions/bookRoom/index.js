@@ -58,6 +58,33 @@ function calculateTotalCost(rooms, checkOut, checkIn) {
   return totalCost;
 }
 
+function validateGuests(rooms, totalGuests) {
+  let totalExpectedGuests = 0;
+
+  rooms.forEach(room => {
+    switch (room.type.toLowerCase()) {
+      case "single":
+        totalExpectedGuests += 1;
+        break;
+      case "double":
+        totalExpectedGuests += 2;
+        break;
+      case "triple":
+        totalExpectedGuests += 3;
+        break;
+      default:
+        totalExpectedGuests = 0
+    }
+  });
+
+  if (totalGuests !== totalExpectedGuests) {
+    return sendResponse(400, {
+      success: false,
+      message: "Invalid number of guests. Please check the number of guests based on the room types.",
+    });
+  }
+}
+
 exports.handler = async (event, context) => {
   const bookingDetails = JSON.parse(event.body);
 
@@ -69,6 +96,11 @@ exports.handler = async (event, context) => {
   bookingDetails.referencePerson = bookingDetails.referencePerson;
 
   validateDate(bookingDetails.checkInDate, bookingDetails.checkOutDate);
+  const guestsValidationResult = validateGuests(bookingDetails.rooms, bookingDetails.numberOfGuests);
+
+  if (guestsValidationResult) {
+    return guestsValidationResult;
+  }
 
   bookingDetails.numberOfRooms = `${bookingDetails.rooms.length}`;
   bookingDetails.GSI_PK_1 = "BOOKING#CONFIRMED";
