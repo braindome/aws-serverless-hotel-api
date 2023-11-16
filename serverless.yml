@@ -26,7 +26,7 @@ custom:
   scriptable:
     hooks:
       #after:aws:deploy:deploy:createStack:  generate_booking.js
-      #after:aws:deploy:deploy:createStack:  generate_hotel_rooms.js
+      after:aws:deploy:deploy:createStack:  generate_hotel_rooms.js
 
 functions:
   bookRoom:
@@ -51,12 +51,12 @@ functions:
     handler: functions/delete/index.handler 
     events:
       - httpApi:
-          path: '/bookings/current'
-          method: delete
+          path: '/bookings/{id}'
+          method: DELETE
           
 
 resources:
-  Resources:
+ Resources:
     teamDb:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -81,7 +81,7 @@ resources:
             Projection:
               ProjectionType: ALL
           - IndexName: "GSI_GENERIC_PK_SK"
-            KeySchema:
+            KeySchema: 
             - AttributeName: GSI_PK_1
               KeyType: HASH
             - AttributeName: GSI_SK_1
