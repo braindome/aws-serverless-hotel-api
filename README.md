@@ -120,7 +120,7 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 ## GET-request for all available rooms (with or without ROOMSIZE):
 
 - Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15&roomSize=2
-- Endpoint: /bookings?checkInDate=2023-11-10&checkOutDate=2023-11-15
+- Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15
 
 ## PATCH-request for updating a booking:
 
