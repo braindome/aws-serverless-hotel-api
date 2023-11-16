@@ -4,6 +4,7 @@ const { v1: uuidv4 } = require("uuid");
 const errDateMsg = "Invalid date range. Please provide valid checkInDate and checkOutDate in ISO format (e.g., 2023-12-23).";
 const errPeopleToHoldMsg = (tot,max) =>{ `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
 const errMaxNumberOfNights = (tot) =>{ `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
+const errMaxNumberOfRooms = (tot) =>{ `Total amount of rooms (${tot}) exceeds hotel limit (3)!`; }
 
 
 /*
@@ -30,6 +31,9 @@ exports.handler = async (event, context) => {
 
     const numberOfDays = getNumberOfDaysBetween(bookingDetails.checkInDate,bookingDetails.checkOutDate);
     const stringOfDates = getDateRangeBetween(bookingDetails.checkInDate,bookingDetails.checkOutDate);
+
+
+
     var transactItems = [];
     var amountToPay = 0;
     var totalOfPeopleToHold = 0;
@@ -50,6 +54,10 @@ exports.handler = async (event, context) => {
 
     if(stringOfDates.length > 7){ 
         return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfNights(stringOfDates.length) });
+    }
+
+    if(transactItems.length > 4){ 
+        return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfRooms(transactItems.length) });
     }
 
     try{
