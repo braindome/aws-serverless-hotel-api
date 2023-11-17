@@ -47,37 +47,9 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 }
 ```
 
-## UPDATE-request to change a booking:
+## POST-request for booking:
 
-- Endpoint: /bookings/{id}
-
-```json
-{
-  "bookingUpdate": {
-    "numberOfGuests": 3,
-    "checkInDate": "2023-11-18",
-    "checkOutDate": "2023-11-22",
-    "rooms": [
-      {
-        "type": "single",
-        "quantity": 1
-      },
-      {
-        "type": "suite",
-        "quantity": 2
-      }
-    ]
-  }
-}
-```
-
-## DELETE-request to cancel a booking:
-
-- Append id to url to cancel the booking
-- Endpoint: /bookings/{id}
-
-## POST-request for booking with availability check:
-
+- Kollar tillgänglighet och låser rummet på valda datum
 - Endpoint: /bookings
 
 ```json
@@ -106,17 +78,19 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 }
 ```
 
-## GET-request for all current bookings (with or without dates):
+## GET-request for booking:
 
+- Med eller utan datum (max 7 dagar)
 - Endpoint: /bookings?checkInDate=2023-11-17&checkOutDate=2023-11-18
 - Endpoint: /bookings
 
-## GET-request for all available rooms (with or without ROOMSIZE):
+## GET-request available rooms:
 
+- Typ av rum (1-3) kan utlämnas men datum behövs (max 7 dagar)
 - Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15&roomSize=2
 - Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15
 
-## PATCH-request for updating a booking:
+## PATCH-request to update a booking:
 
 - Endpoint: /bookings/{id}
 
@@ -137,3 +111,8 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
   ]
 }
 ```
+
+## DELETE-request to cancel a booking:
+
+- Append id to url to cancel the booking
+- Endpoint: /bookings/{id}
