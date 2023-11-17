@@ -72,16 +72,8 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 ```
 
 ## DELETE-request to cancel a booking:
-
+- Append id to url to cancel the booking
 - Endpoint: /bookings/{id}
-
-```json
-{
-  "bookingCancellation": {
-    "bookingNumber": "B123456789"
-  }
-}
-```
 
 ## POST-request for booking with availability check:
 
