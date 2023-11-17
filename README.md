@@ -81,8 +81,8 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 
 ```json
 {
-	"numberOfGuests": "3",
-	"checkInDate": "2023-11-17",
+"numberOfGuests": "3",
+"checkInDate": "2023-11-17",
 	"checkOutDate": "2023-11-18",
 	"rooms": [
 			{
@@ -94,7 +94,7 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 					"quantity": "1"
 			},
 			{
-					"roomSize": "3",
+	"roomSize": "3",
 					"quantity": "1"
 			}
 	],
