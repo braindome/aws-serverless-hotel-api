@@ -28,3 +28,9 @@ export const addDays = function(str, days) {
     myDate.setDate(myDate.getDate() + parseInt(days));
     return myDate;
 }
+
+export const oneYearAhead = () => {
+    var myDate = new Date();
+    myDate.setDate(myDate.getDate() + 365);
+    return myDate;
+}
