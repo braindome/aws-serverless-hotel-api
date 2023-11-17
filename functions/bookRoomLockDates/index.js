@@ -1,13 +1,13 @@
 import {SERVER} from "../../aws_module/index";
 import { gsi_available_room_without_size } from "../query/gsi";
-import { getDateRangeBetween,addDays } from "../query/helper";
+import { getDateRangeBetween,addDays,oneYearAhead } from "../query/helper";
 const { v1: uuidv4 } = require("uuid");
 
-const errPeopleToHoldMsg = (tot,max) =>{ return `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
-const errMaxNumberOfNights = (tot) =>{ return `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
-const errBookingMissingRooms = () =>{ return `Booking failed. We dont have all the requested rooms available!`; }
-const errMaxNumberOfRooms = (tot) =>{ return `Total amount of rooms (${tot}) exceeds hotel limit (5)!`; }
-const errDateRange = "Period exceeds max number of nights [7]"
+export const errPeopleToHoldMsg = (tot,max) =>{ return `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
+export const errMaxNumberOfNights = (tot) =>{ return `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
+export const errBookingMissingRooms = () =>{ return `Booking failed. We dont have all the requested rooms available!`; }
+export const errMaxNumberOfRooms = (tot) =>{ return `Total amount of rooms (${tot}) exceeds hotel limit (5)!`; }
+export const errDateRange = "Period exceeds max number of nights [7]"
 
 export const BOOKING_CONFIRMATION = Object.freeze({
     OBJECT_FAILED:"OBJECT_FAILED",
@@ -17,42 +17,36 @@ export const BOOKING_CONFIRMATION = Object.freeze({
     REFERENCE_PERSON_FAILED:"REFERENCE_PERSON_FAILED",
 });
 
-
-
 exports.handler = async (event, context) => {
     const bookingDetails = JSON.parse(event.body);
     const result = validateBooking(bookingDetails); 
     if(!result.verified){ return SERVER.sendResponse(400, {success: false,message:result.msg });}
 
-    const id = uuidv4();
-    const rooms = bookingDetails.rooms;
-    const checkInDate = bookingDetails.checkInDate;
-    const checkOutDate = bookingDetails.checkOutDate;
-    const numberOfGuests = parseInt(bookingDetails.numberOfGuests);
-    const GSI_PK_1 = "BOOKING#CONFIRMED";
-    const GSI_SK_1  = bookingDetails.checkInDate;
-    const checkOutDateRemoveOne = addDays(checkOutDate,-1).toISOString();
-    const numberOfDays = getNumberOfDaysBetween(checkInDate,checkOutDate);
-    const stringOfDates = getDateRangeBetween(checkInDate,checkOutDateRemoveOne); // i think this is right
-    const dateRangeList = getDateRangeBetween(checkInDate,checkOutDateRemoveOne); // well
+    const checkOutDateRemoveOne = addDays(bookingDetails.checkOutDate,-1).toISOString();
+    const numberOfDays = getNumberOfDaysBetween(bookingDetails.checkInDate,bookingDetails.checkOutDate);
+    const stringOfDates = getDateRangeBetween(bookingDetails.checkInDate,checkOutDateRemoveOne); 
     
-    if(dateRangeList.length > 7){ return SERVER.sendResponse(400,{success:false,msg:errDateRange} )}
+    if(stringOfDates.length > 7){ return SERVER.sendResponse(400,{success:false,msg:errDateRange} )}
 
-    const {Items} = await SERVER.documentClient.query(gsi_available_room_without_size(dateRangeList)).promise();
-    const search = findAvailableRooms(Items,rooms);
+    let search;
+    try{
+        const {Items} = await SERVER.documentClient.query(gsi_available_room_without_size(stringOfDates)).promise();
+        search = findAvailableRooms(Items,bookingDetails.rooms);
+    }catch(err){ return SERVER.sendResponse(500, { success: false,errorMessage:err }); }
+    
 
     if(!search.found){return SERVER.sendResponse(400, {success: false,message:errBookingMissingRooms() });}
   
-    bookingDetails.id = id;
+    bookingDetails.id = uuidv4();
     bookingDetails.rooms = search.rooms;
     bookingDetails.numberOfRooms = search.rooms.length;
     
-    bookingDetails.GSI_PK_1 = GSI_PK_1;
-    bookingDetails.GSI_SK_1 = GSI_SK_1;
+    bookingDetails.GSI_PK_1 = "BOOKING#CONFIRMED";
+    bookingDetails.GSI_SK_1 = bookingDetails.checkInDate;
 
-    var transactItems = [];
-    var amountToPay = 0;
-    var totalOfPeopleToHold = 0;
+    let transactItems = [];
+    let amountToPay = 0;
+    let totalOfPeopleToHold = 0;
 
     transactItems.push(transactItemBooking(bookingDetails));
 
@@ -65,27 +59,22 @@ exports.handler = async (event, context) => {
     bookingDetails.amountToPay = amountToPay;
     let params = { TransactItems:transactItems }
 
-    if(totalOfPeopleToHold < numberOfGuests){ 
+    if(totalOfPeopleToHold < parseInt(bookingDetails.numberOfGuests)){ 
         return SERVER.sendResponse(400, {success: false,message:errPeopleToHoldMsg(totalOfPeopleToHold,bookingDetails.numberOfGuests) });
     }
-    if(stringOfDates.length > 7){ 
-        return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfNights(stringOfDates.length) });
-    }
-    if(transactItems.length > 6){ 
+    if(transactItems.length <= 0 || transactItems.length > 6){ 
         return SERVER.sendResponse(400, {success: false,message:errMaxNumberOfRooms(transactItems.length) });
     }
     try{
         await SERVER.documentClient.transactWrite(params).promise();
         return SERVER.sendResponse(200, { success: true, bookingConfirmation: bookingDetailsConfirmation(bookingDetails)});
-      } catch(err) {
-        return SERVER.sendResponse(500, { success: false,errorMessage:err });
-    }
+      } catch(err) { return SERVER.sendResponse(500, { success: false,errorMessage:err }); }
 
    
 };
 
 
-const findAvailableRooms = (availableRooms,roomsRequested) =>{
+export const findAvailableRooms = (availableRooms,roomsRequested) =>{
     const roomToFind = [];
     const roomsFound = []
     roomsRequested.map((room) =>{ 
@@ -129,7 +118,7 @@ const transactItemBooking = (bookingDetails) =>{
     }
 }
 
-const transactItemRoom = (id,dates) =>{
+export const transactItemRoom = (id,dates) =>{
     return{ 
         Update: {
             TableName: process.env.DYNAMO_DB_TABLE,
@@ -162,11 +151,11 @@ const validateBooking = (bookingDetails) =>{
     return{verified:true}
 }
 
-const validDateRange = (checkIn, checkOut) => {
+export const validDateRange = (checkIn, checkOut) => {
     const currentDate = new Date();
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-    const maxCheckOutDate = new Date("2024-12-31");
+    const maxCheckOutDate = oneYearAhead();
   
     if( isNaN(checkInDate) ||
         isNaN(checkOutDate) ||
@@ -178,7 +167,7 @@ const validDateRange = (checkIn, checkOut) => {
     return true;
 }
 
-const getNumberOfDaysBetween = (from,to) =>{
+export const getNumberOfDaysBetween = (from,to) =>{
     const d1 = new Date(from); 
     const d2 = new Date(to); 
     const diff = d2.getTime() - d1.getTime(); 
