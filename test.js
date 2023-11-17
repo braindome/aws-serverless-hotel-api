@@ -1,5 +1,5 @@
 const {v4: uuidv4} = require('uuid')
-//const fs = require('fs')
+
 
 function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
@@ -26,30 +26,18 @@ const randomRoom = (index) => {
 }
 
 const generate = async () =>{
-    const AWS = require('aws-sdk');
-    AWS.config.update({region: "eu-north-1"});
-    const documentClient = new AWS.DynamoDB.DocumentClient();
-    
     const data = [];
     for(let i = 0;i <20;i++){
         data.push(randomRoom(i+1));
     }
 
-    //let json = JSON.stringify(data);
-    //fs.writeFileSync('rooms.json',json);
-    
-    let params = {
-        RequestItems: {
-          [process.env.DYNAMO_DB_TABLE]: data
-        },
-      }
+    console.log(data);
+    data.forEach((item) =>{
+        console.log(item);
+    })
 
-    await documentClient.batchWrite(params,(err,data) =>{
-        if(err){console.log(err);}
-        else{console.log(`added ${data.length} rooms` );}
-    }).promise();
-         
+
 }
 
-// UNCOMMENT TO POPULATE
-//generate();
+
+generate();

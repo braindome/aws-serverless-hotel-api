@@ -63,6 +63,12 @@ functions:
       - httpApi:
           path: '/bookings/{id}'
           method: PATCH
+  addRoom:
+    handler: functions/addRoom/index.handler 
+    events:
+      - httpApi:
+          path: '/addroom'
+          method: POST
 
 resources:
  Resources:

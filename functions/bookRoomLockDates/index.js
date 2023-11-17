@@ -25,7 +25,7 @@ exports.handler = async (event, context) => {
     const checkOutDateRemoveOne = addDays(bookingDetails.checkOutDate,-1).toISOString();
     const numberOfDays = getNumberOfDaysBetween(bookingDetails.checkInDate,bookingDetails.checkOutDate);
     const stringOfDates = getDateRangeBetween(bookingDetails.checkInDate,checkOutDateRemoveOne); 
-    
+   
     if(stringOfDates.length > 7){ return SERVER.sendResponse(400,{success:false,msg:errDateRange} )}
 
     let search;
