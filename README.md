@@ -19,7 +19,7 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 
 ## POST-request for booking a/more rooms:
 
-- Endpoint: /book
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/book
 
 ```json
 {
@@ -50,7 +50,7 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 ## POST-request for booking:
 
 - Kollar tillgänglighet och låser rummet på valda datum
-- Endpoint: /bookings
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings
 
 ```json
 {
@@ -81,14 +81,14 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 ## GET-request for booking:
 
 - Med eller utan datum (max 7 dagar)
-- Endpoint: /bookings?checkInDate=2023-11-17&checkOutDate=2023-11-18
-- Endpoint: /bookings
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings?checkInDate=2023-11-17&checkOutDate=2023-11-18
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings
 
 ## GET-request available rooms:
 
 - Typ av rum (1-3) kan utlämnas men datum behövs (max 7 dagar)
-- Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15&roomSize=2
-- Endpoint: /rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15&roomSize=2
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/rooms?checkInDate=2023-11-10&checkOutDate=2023-11-15
 
 ## PATCH-request to update a booking:
 
@@ -115,4 +115,4 @@ authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 ## DELETE-request to cancel a booking:
 
 - Append id to url to cancel the booking
-- Endpoint: /bookings/{id}
+- Endpoint:  https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings/{id}

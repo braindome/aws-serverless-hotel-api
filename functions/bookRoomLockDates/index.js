@@ -1,7 +1,7 @@
 import {SERVER} from "../../aws_module/index";
 import { gsi_available_room_without_size } from "../query/gsi";
 import { getDateRangeBetween,addDays,oneYearAhead } from "../query/helper";
-const { v1: uuidv4 } = require("uuid");
+const { v1: uuidv1 } = require("uuid");
 
 export const errPeopleToHoldMsg = (tot,max) =>{ return `Total amount of people (${tot}) exceeds room capacity ${max}!`; }
 export const errMaxNumberOfNights = (tot) =>{ return `Total amount of nights (${tot}) exceeds hotel limit (7)!`; }
@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
 
     if(!search.found){return SERVER.sendResponse(400, {success: false,message:errBookingMissingRooms() });}
   
-    bookingDetails.id = uuidv4();
+    bookingDetails.id = uuidv1();
     bookingDetails.rooms = search.rooms;
     bookingDetails.numberOfRooms = search.rooms.length;
     

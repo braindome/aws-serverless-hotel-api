@@ -111,5 +111,3 @@ const filterExpressionAndExpressionAttribute  = (dateRangeList) =>{
 
     return {filterExpression:filterExpression,expressionAttribute:expressionAttribute}
 }
-
-//https://ge4aauq1nl.execute-api.eu-north-1.amazonaws.com/bookings/current?checkInDate=2023-12-01&checkOutDate=2023-12-29
