@@ -16,7 +16,6 @@ export const UPDATE_BOOKING_CONFIRMATION = Object.freeze({
 exports.handler = async (event, context) => {
     const bookingId = event.pathParameters.id;
     if(!event.pathParameters.hasOwnProperty("id")){return SERVER.sendResponse(400, { success: false,errorMessage:errBookingId })}
-    
     const currentBooking = { TableName: process.env.DYNAMO_DB_TABLE, Key: {id : bookingId}};
     let currentBookingDetails;
     let currentCheckInDate;
@@ -32,7 +31,6 @@ exports.handler = async (event, context) => {
       } catch(err) {
         return SERVER.sendResponse(500, { success: false,errorMessage:err });
     }
-    
     const updateBookingDetails = JSON.parse(event.body);
     const check = validateUpdatedBookingPart(updateBookingDetails,currentBookingDetails);
 
@@ -45,14 +43,12 @@ exports.handler = async (event, context) => {
 
     currentRooms.forEach((room) => { roomIds.push(room.id); })
     if(roomIds.length > 5 || stringOfDates > 7){return SERVER.sendResponse(400, {success: false,message:errunExpectedRangeOfData })}
-
     let data;
     try{
         const requestGetItems = getGetRequestItems(DYNAMO_TABLE_NAME,roomIds)
         data = (await SERVER.documentClient.batchGet(requestGetItems).promise()).Responses[DYNAMO_TABLE_NAME];
     }catch(err){ return SERVER.sendResponse(500, { success: false,errorMessage:err }); }
-
-    let putRequests = [];
+    let patchItems = [];
     data.forEach((room) =>{
         stringOfDates.forEach((date) =>{
             if(room.bookedDates.includes(date)){{
@@ -60,17 +56,20 @@ exports.handler = async (event, context) => {
                 room.bookedDates.splice(idx,1);
             }}
         })
-        putRequests.push(getPutRequestItem(room.id,room.bookedDates))
+        patchItems.push(transactItemPatch(room.id,room.bookedDates))
+        //putRequests.push(getPutRequestItem(room.id,room))
     })
-    if(putRequests.length > 5){return SERVER.sendResponse(400, {success: false,message:errunExpectedRangeOfData })}
+    if(patchItems.length > 5){return SERVER.sendResponse(400, {success: false,message:errunExpectedRangeOfData })}
 
-    if(putRequests.length > 0){
-        const requestPutItems = getPutRequestItems(DYNAMO_TABLE_NAME,putRequests);
+    if(patchItems.length > 0){
+        //const requestPutItems = getPutRequestItems(DYNAMO_TABLE_NAME,putRequests);
         try{
-            const result = (await SERVER.documentClient.batchWrite(requestPutItems).promise());
+            const params = { TransactItems:patchItems }
+            await SERVER.documentClient.transactWrite(params).promise();
+            //const result = (await SERVER.documentClient.batchWrite(requestPutItems).promise());
         }catch(err){ return SERVER.sendResponse(500, { success: false,errorMessage:err }); }
     }
-    
+
     checkOutDateRemoveOne = addDays(currentBookingDetails.checkOutDate,-1).toISOString();
     const numberOfDays = getNumberOfDaysBetween(currentBookingDetails.checkInDate,currentBookingDetails.checkOutDate);
     stringOfDates = getDateRangeBetween(currentBookingDetails.checkInDate,checkOutDateRemoveOne); 
@@ -78,11 +77,10 @@ exports.handler = async (event, context) => {
     
     let search;
     try{
-        console.log(currentBookingDetails.rooms)
         const {Items} = await SERVER.documentClient.query(gsi_available_room_without_size(stringOfDates)).promise();
         search = findAvailableRooms(Items,currentBookingDetails.rooms);
     }catch(err){ return SERVER.sendResponse(500, { success: false,errorMessage:err }); }
-    
+   
     if(!search.found){return SERVER.sendResponse(400, {success: false,message:errBookingMissingRooms() });}
 
     let transactItems = [];
@@ -290,7 +288,7 @@ const getGetRequestItems = (tableName,ids) =>{
     return {
         RequestItems: {
             [tableName]: {
-              Keys: ids.map(id => ({["id"]: id}))
+              Keys: ids.map(id => ({["id"]: `${id}`}))
             }
         }
     }
@@ -300,14 +298,23 @@ const getPutRequestItems = (tableName,data) =>{
     return { RequestItems: { [tableName]: data} }
 }
 
-const getPutRequestItem = (id,dates) =>{
+const getPutRequestItem = (id,data) =>{
     return {
         PutRequest: {
-            Item: {
-              ["id"]: id,
-              bookedDates: dates,
-           },
+            Item: data,
           }
+    }
+}
+
+const transactItemPatch = (id,dates) =>{
+    return{ 
+        Update: {
+            TableName: process.env.DYNAMO_DB_TABLE,
+            Key: { "id": id },
+            UpdateExpression: "SET #dd = :dates",
+            ExpressionAttributeNames: { '#dd': 'bookedDates' },
+            ExpressionAttributeValues:{ ':dates':dates}
+        }
     }
 }
 

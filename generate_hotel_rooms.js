@@ -1,4 +1,4 @@
-const {v4: uuidv4} = require('uuid')
+const {v4: uuidv1} = require('uuid')
 //const fs = require('fs')
 
 function randomIntFromInterval(min, max) {
@@ -9,7 +9,7 @@ const randomRoom = (index) => {
     const roomNumber = `${index}`
     const roomSize = randomIntFromInterval(1,3);
     const roomPrice = 500*roomSize;
-    const id = uuidv4();
+    const id = uuidv1();
     return{
         PutRequest:{
             Item: {
@@ -51,5 +51,4 @@ const generate = async () =>{
          
 }
 
-// UNCOMMENT TO POPULATE
 //generate();

@@ -1,4 +1,4 @@
-const {v4: uuidv4} = require('uuid')
+const {v4: uuidv1} = require('uuid')
 //const fs = require('fs')
 
 function randomIntFromInterval(min, max) {
@@ -9,7 +9,7 @@ const randomBooking = () => {
     return{
         PutRequest:{
             Item: {
-                id:uuidv4(),
+                id:uuidv1(),
                 numberOfGuests: "3",
                 checkInDate: "2023-11-16",
                 checkOutDate: "2023-11-23",
